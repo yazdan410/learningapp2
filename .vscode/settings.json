@@ -1,0 +1,5 @@
+{
+    "dotnet.defaultSolution": "LearningApp.sln",
+    "appService.defaultWebAppToDeploy": "",
+    "appService.deploySubpath": "LearningApp\\bin\\Publish"
+}

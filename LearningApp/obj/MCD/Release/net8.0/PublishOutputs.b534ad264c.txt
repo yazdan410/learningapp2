@@ -1,0 +1,7 @@
+G:\azure_studies\Temp\learningapp\bin\Publish\LearningApp.exe
+G:\azure_studies\Temp\learningapp\bin\Publish\appsettings.Development.json
+G:\azure_studies\Temp\learningapp\bin\Publish\appsettings.json
+G:\azure_studies\Temp\learningapp\bin\Publish\LearningApp.dll
+G:\azure_studies\Temp\learningapp\bin\Publish\LearningApp.deps.json
+G:\azure_studies\Temp\learningapp\bin\Publish\LearningApp.runtimeconfig.json
+G:\azure_studies\Temp\learningapp\bin\Publish\LearningApp.pdb
