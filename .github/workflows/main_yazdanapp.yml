@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - yazdanapp
 
 on:
@@ -14,52 +11,54 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '8.x'  # Set the required version for your project
 
-      - name: Build with dotnet
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build the Application
         run: dotnet build --configuration Release
 
-      - name: dotnet publish
+      - name: Publish the Application
         run: dotnet publish -c Release -o ./publish_output
 
-      - name: Upload artifact for deployment job
+      - name: Upload Artifact for Deployment
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: net-app-artifact  # Consistent artifact name
+          path: ./publish_output  # Corrected path
 
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write  # Required for JWT-based Azure authentication
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+      - name: Download Artifact from Build Job
+        uses: actions/download-artifact@v4
         with:
-          name: learningapp
-      
+          name: net-app-artifact  # Ensure name matches upload step
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_19FD035751B24174ACEF416A83C0F90C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E552159E368D4361AC34881B87156A63 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E22A963B48304CC985413F8EE49CD956 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'yazdanapp'
-          slot-name: 'Production'
-          package: ./publish_output
-          
+          slot-name: 'production'
+          package: ./publish_output  # Path to the downloaded artifact
