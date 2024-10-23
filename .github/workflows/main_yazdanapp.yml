@@ -17,7 +17,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'  # Set the required version for your project
+          dotnet-version: '8.x'  # Ensure correct version for your project
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -26,13 +26,13 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Publish the Application
-        run: dotnet publish -c Release -o ./publish_output
+        run: dotnet publish ./YourProjectFolder/YourProject.csproj -c Release -o ./publish_output
 
       - name: Upload Artifact for Deployment
         uses: actions/upload-artifact@v4
         with:
-          name: net-app-artifact  # Consistent artifact name
-          path: ./publish_output  # Corrected path
+          name: net-app-artifact  # Artifact name must match in upload and download steps
+          path: ./publish_output  # Ensure path points to correct directory
 
   deploy:
     runs-on: windows-latest
@@ -40,18 +40,18 @@ jobs:
     environment:
       name: 'Production'
     permissions:
-      id-token: write  # Required for JWT-based Azure authentication
+      id-token: write
 
     steps:
       - name: Download Artifact from Build Job
         uses: actions/download-artifact@v4
         with:
-          name: net-app-artifact  # Ensure name matches upload step
+          name: net-app-artifact  # Ensure matching name in upload step
 
       - name: Login to Azure
         uses: azure/login@v2
         with:
-         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_19FD035751B24174ACEF416A83C0F90C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_19FD035751B24174ACEF416A83C0F90C }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E552159E368D4361AC34881B87156A63 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E22A963B48304CC985413F8EE49CD956 }}
 
@@ -60,5 +60,5 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'yazdanapp'
+          package: ./publish_output  # Ensure correct path to artifact
           slot-name: 'production'
-          package: ./publish_output  # Path to the downloaded artifact
