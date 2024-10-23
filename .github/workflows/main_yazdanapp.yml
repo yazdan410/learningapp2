@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy ASP.Net Core app to Azure Web App - yazdanapp
 
 on:
@@ -11,43 +14,40 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'  # Ensure correct version for your project
+          dotnet-version: '8.x'
 
-      - name: Restore Dependencies
-        run: dotnet restore
-
-      - name: Build the Application
+      - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      - name: Publish the Application
-        run: dotnet publish ./learningapp2/tree/main/LearningApp/LearningApp.csproj.csproj -c Release -o ./publish_output
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ./publish_output
 
-      - name: Upload Artifact for Deployment
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: net-app-artifact  # Artifact name must match in upload and download steps
-          path: ./publish_output  # Ensure path points to correct directory
+          name: .net-app
+          path: ./publish_output
 
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
+      id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Download Artifact from Build Job
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: net-app-artifact  # Ensure matching name in upload step
-
+          name: .net-app
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,5 +60,5 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'yazdanapp'
-          package: ./publish_output  # Ensure correct path to artifact
-          slot-name: 'production'
+          slot-name: 'Production'
+          package: ./publish_output
